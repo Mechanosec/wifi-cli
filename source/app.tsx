@@ -105,11 +105,17 @@ const App = () => {
 				setWifiData(
 					networks
 						.filter(network => network.ssid)
-						.map(network => ({
-							name: network.ssid,
-							quality: network.quality,
-							security: network.security,
-						})),
+						.reduce((acc: Wifi[], network) => {
+							if (!acc.some(item => item.name === network.ssid)) {
+								acc.push({
+									name: network.ssid,
+									quality: network.quality,
+									security: network.security,
+								});
+							}
+
+							return acc;
+						}, []),
 				);
 			}
 		});
@@ -117,6 +123,7 @@ const App = () => {
 
 	const handleSelect = (item: {value: string}) => {
 		setWifiSelected(item.value);
+		setIsWifiConnectedError(false);
 	};
 
 	const wifiConnect = async () => {
@@ -135,7 +142,7 @@ const App = () => {
 			{isWifiConnected && (
 				<Text color="green">Connected to {wifiSelected}</Text>
 			)}
-			{isWifiConnectedError && !wifiSelected && (
+			{isWifiConnectedError && (
 				<Text color="red">Error connecting to {wifiSelected}</Text>
 			)}
 
